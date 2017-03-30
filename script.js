@@ -26,6 +26,8 @@ var activated = {
 
 var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
 
+var totalPoints = 0;
+
 
 function start() {
 	// calls update every half second
@@ -58,9 +60,20 @@ function activateKey(code) {
 	}
 }
 
+function updatePointTotal() {
+	var totalDisplay = document.getElementById("total-points");
+	totalDisplay.innerHTML = totalPoints;
+}
+
 // changes a key back to color grey
 function deactivateKey(code) {
 	if (code in keyCodeToChar) {
+		// key is red, user pressed it correctly
+		if (activated[code]) {
+			totalPoints = totalPoints + 100;
+			updatePointTotal();
+		}
+
 		var key = document.getElementById(keyCodeToChar[code]);
 		changeColor(key, "#EFF0F2");
 		activated[code] = false;

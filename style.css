@@ -20,7 +20,7 @@ html,body {
 
 p {
     font-size: 100px; /* For lamers who don't support viewport sizing */
-    font-size:40vmin;
+    font-size:12vmin;
     text-align: center;
     margin: 0;
 }
