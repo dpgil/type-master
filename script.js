@@ -1,5 +1,3 @@
-var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
-
 // point variables
 var correctCount = 0;
 var totalPoints = 0;
@@ -26,13 +24,13 @@ var activatedColor = "#FF9999";
 var deactivatedColor = "#EFF0F2";
 var gameOverColor = "#FF6666";
 
+var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
+
 var keyCodeToChar = {
 	65 : "a",
 	83 : "s",
 	68 : "d",
 	70 : "f",
-	//71 : "g",
-	//72 : "h",
 	74 : "j",
 	75 : "k",
 	76 : "l",
@@ -44,28 +42,33 @@ var activated = {
 	83 : false,
 	68 : false,
 	70 : false,
-	//71 : "g",
-	//72 : "h",
 	74 : false,
 	75 : false,
 	76 : false,
 	186 : false
 };
 
-//function start() {
-	// calls update every half second
-	//interval = setInterval(update, 500);
-//	update();
-//}
-
 function startGame() {
+	// resets keys
+	resetKeys();
+	resetPoints();
+
+	// reset spawn rate
+	intervalIndex = 0;
+
+	// hides play message
 	var message = document.getElementById("message");
 	message.style.visibility = "Collapse";
 	gameOver = false;
+
+	// kicks off gameplay
 	update();
 }
 
+// to be called every interval seconds
+// activates random keys, the driver behind the gameplay
 function update() {
+	// set a random key to red
 	activateRandomKey();
 
 	// continues to spawn new random keys until the game is over
@@ -89,13 +92,47 @@ function checkGameOver() {
 	endGame();
 }
 
-// ends the game
-function endGame() {
-	gameOver = true;
+// sets points and count back to zero
+function resetPoints() {
+	correctCount = 0;
+	totalPoints = 0;
+	updatePointTotal();
+}
 
-	// clears interval calling of update method
-	//clearInterval(interval);
+// sets keys back to home keys
+function resetKeys() {
+	var a = document.getElementById("a");
+	a.innerHTML = "a";
+	//a.style.background = gameOverColor;
+	var s = document.getElementById("s");
+	s.innerHTML = "s";
+	//s.style.background = gameOverColor;
+	var d = document.getElementById("d");
+	d.innerHTML = "d";
+	//d.style.background = gameOverColor;
+	var f = document.getElementById("f");
+	f.innerHTML = "f";
+	//f.style.background = gameOverColor;
+	var j = document.getElementById("j");
+	j.innerHTML = "j";
+	//j.style.background = gameOverColor;
+	var k = document.getElementById("k");
+	k.innerHTML = "k";
+	//k.style.background = gameOverColor;
+	var l = document.getElementById("l");
+	l.innerHTML = "l";
+	//l.style.background = gameOverColor;
+	var x = document.getElementById(";");
+	x.innerHTML = ";";
 
+	// deactivate every key in terms of the game
+	for (i=0; i < keyCodes.length; i++) {
+		deactivateKey(keyCodes[i]);
+	}
+}
+
+// sets keys to GAME OVER
+function setKeys() {
 	// display G A M E O V E R in the home keys
 	var a = document.getElementById("a");
 	a.innerHTML = "G";
@@ -120,7 +157,19 @@ function endGame() {
 	//l.style.background = gameOverColor;
 	var x = document.getElementById(";");
 	x.innerHTML = "R";
-	//x.style.background = gameOverColor;
+}
+
+// ends the game
+function endGame() {
+	gameOver = true;
+
+	// sets keys to GAME OVER
+	setKeys();
+
+	// adds in replay message
+	var message = document.getElementById("message");
+	message.innerHTML = "Press space to play again";
+	message.style.visibility = "Visible";
 }
 
 // makes the speed of key activation faster
@@ -155,13 +204,17 @@ function changeColor(key, color) {
 // changes a key to color red
 function activateKey(code) {
 	if (code in keyCodeToChar) {
+		// makes the key red and updates its status
 		var key = document.getElementById(keyCodeToChar[code]);
 		changeColor(key, activatedColor);
 		activated[code] = true;
+
+		// checks if we have activated every one
 		checkGameOver();
 	}
 }
 
+// updates the point total display to reflect the current points
 function updatePointTotal() {
 	var totalDisplay = document.getElementById("total-points");
 	totalDisplay.innerHTML = totalPoints;
@@ -171,40 +224,37 @@ function updatePointTotal() {
 function deactivateKey(code) {
 	// exclude invalid key presses
 	if (code in keyCodeToChar) {
-		// key is red, user pressed it correctly
-		if (activated[code]) {
-			totalPoints = totalPoints + pointGain;
-			correctCount++;
+		// points only count when we're playing
+		if (!gameOver) {
+			// key is red, user pressed it correctly
+			if (activated[code]) {
+				totalPoints = totalPoints + pointGain;
+				correctCount++;
 
-			// if we got a certain amount correct, makes it faster
-			updateLevelThresh();
-		} else {
-			totalPoints = totalPoints - pointLoss;
+				// if we got a certain amount correct, makes it faster
+				updateLevelThresh();
+			} else {
+				totalPoints = totalPoints - pointLoss;
+			}
+			updatePointTotal();
 		}
-		updatePointTotal();
 
+		// so we can deactivate keys internally
 		var key = document.getElementById(keyCodeToChar[code]);
 		changeColor(key, deactivatedColor);
 		activated[code] = false;
 	}
 }
 
-// key unpressed
-window.onkeyup = function(e) {
-	//deactivateKey(e.keyCode);
-}
-
 // key pressed
 window.onkeydown = function(e) {
 	if (gameOver) {
-		if (e.keyCode == 32) {
+		// since space is used to start again
+		if (e.keyCode === 32) {
 			startGame();
 		}
 	} else {
-		//activateKey(e.keyCode);
+		// we're playing the game. press the key
 		deactivateKey(e.keyCode);
 	}
 }
-
-// starts the timer
-start();
