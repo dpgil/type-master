@@ -12,11 +12,10 @@ var currentCount = 0;
 var intervalMin = 500;
 var intervalMax = 800;
 // number which to take away from interval min and max
-var intervalMinLoss = 5;
-var intervalMaxLoss = 8;
+var intervalMinLoss = 3;
+var intervalMaxLoss = 5;
 // current level
 var level = 0;
-
 
 // colors
 var activatedColor = "#FF9999";
@@ -55,14 +54,10 @@ function startGame() {
 	// resets keys
 	resetKeys();
 	resetPoints();
-
-	// reset spawn rate
-	intervalMin = 500;
-	intervalMax = 800;
+	resetInterval();
 
 	// hides play message
-	var message = document.getElementById("message");
-	message.style.visibility = "Collapse";
+	hidePlayMessage();
 	gameOver = false;
 
 	// kicks off gameplay
@@ -83,8 +78,6 @@ function update() {
 
 // checks if the game is over i.e., all keys are activated
 function checkGameOver() {
-	var over = true;
-
 	// if any keys aren't activated, the game is still playing
 	for (i=0; i < keyCodes.length; i++) {
 		if (!activated[keyCodes[i]]) {
@@ -96,10 +89,27 @@ function checkGameOver() {
 	endGame();
 }
 
+function hidePlayMessage() {
+	var message = document.getElementById("message");
+	message.style.visibility = "Collapse";
+}
+
+function showReplayMessage() {
+	// adds in replay message
+	var message = document.getElementById("message");
+	message.innerHTML = "Press space to play again";
+	message.style.visibility = "Visible";
+}
+
 // generates a number between interval min and interval max
 // spawn time to decide when to activate the next key
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function resetInterval() {
+	intervalMin = 500;
+	intervalMax = 800;
 }
 
 // sets points and count back to zero
@@ -175,11 +185,7 @@ function endGame() {
 
 	// sets keys to GAME OVER
 	setKeys();
-
-	// adds in replay message
-	var message = document.getElementById("message");
-	message.innerHTML = "Press space to play again";
-	message.style.visibility = "Visible";
+	showReplayMessage();
 }
 
 // randomly activates a key
@@ -195,9 +201,7 @@ function activateRandomKey() {
 
 	// random index of all available keys
 	var keyCode = unactivatedKeys[Math.floor(Math.random() * unactivatedKeys.length)];
-	if (!activated[keyCode]) {
-		activateKey(keyCode);
-	}
+	activateKey(keyCode);
 }
 
 // changes a key to specified color
@@ -235,7 +239,7 @@ function deactivateKey(code) {
 				totalPoints = totalPoints + pointGain;
 
 				// makes the gameplay slightly faster
-				if (intervalMax > 100) {
+				if (intervalMax > 200) {
 					intervalMax = intervalMax - intervalMaxLoss;
 					intervalMin = intervalMin - intervalMinLoss;
 				}
