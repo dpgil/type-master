@@ -1,5 +1,4 @@
 // point variables
-var correctCount = 0;
 var totalPoints = 0;
 var pointGain = 100;
 var pointLoss = 1000;
@@ -7,14 +6,15 @@ var pointLoss = 1000;
 // whether or not the game is over
 var gameOver = true;
 
-// interval setter
-var interval;
-// how often a new key gets activated
-var intervalMins = [300, 200, 150, 100, 75, 50, 25];
-var intervalMaxs = [500, 400, 300, 200, 150, 100, 50];
-var intervalIndex = 0;
-
-var levelThresh = 30;
+// how many keys have been deactivated so far
+var currentCount = 0;
+// number keys to deactivate to advance to the next level
+var intervalCounts = [10, 10, 20, 30, 30, 30, 30, 100];
+// min and max times for a new key to be activated based on the current level
+var intervalMins = [800, 500, 200, 150, 100, 75, 50, 25];
+var intervalMaxs = [1000, 800, 500, 300, 200, 150, 100, 50];
+// current level
+var level = 0;
 
 
 // colors
@@ -22,8 +22,10 @@ var activatedColor = "#FF9999";
 var deactivatedColor = "#EFF0F2";
 var gameOverColor = "#FF6666";
 
+// stores all key codes for keys used in the game
 var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
 
+// converts key code to its corresponding character
 var keyCodeToChar = {
 	65 : "a",
 	83 : "s",
@@ -35,6 +37,7 @@ var keyCodeToChar = {
 	186 : ";"
 };
 
+// whether or not each of the keys are activated
 var activated = {
 	65 : false,
 	83 : false,
@@ -46,13 +49,14 @@ var activated = {
 	186 : false
 };
 
+// (re)start game
 function startGame() {
 	// resets keys
 	resetKeys();
 	resetPoints();
 
 	// reset spawn rate
-	intervalIndex = 0;
+	level = 0;
 
 	// hides play message
 	var message = document.getElementById("message");
@@ -71,8 +75,8 @@ function update() {
 
 	// continues to spawn new random keys until the game is over
 	if (!gameOver) {
-		var min = intervalMins[intervalIndex];
-		var max = intervalMaxs[intervalIndex];
+		var min = intervalMins[level];
+		var max = intervalMaxs[level];
 		setTimeout(update, getRandomInt(min,max));
 	}
 }
@@ -100,7 +104,7 @@ function getRandomInt(min, max) {
 
 // sets points and count back to zero
 function resetPoints() {
-	correctCount = 0;
+	currentCount = 0;
 	totalPoints = 0;
 	updatePointTotal();
 }
@@ -179,19 +183,12 @@ function endGame() {
 }
 
 // makes the speed of key activation faster
-function updateLevelThresh() {
-	// only makes it faster after 30 correct key presses
-	if (correctCount < levelThresh) {
-		return;
-	}
-
+function levelUp() {
 	// moves to the next speed so long as we're at the end of the array
-	if (intervalIndex < intervalMins.length - 1) {
-		intervalIndex++;
+	if (level < intervalCounts.length - 1) {
+		level++;
+		currentCount = 0;
 	}
-
-	// resets the counter
-	correctCount = 0;
 }
 
 // randomly activates a key
@@ -244,10 +241,12 @@ function deactivateKey(code) {
 			// key is red, user pressed it correctly
 			if (activated[code]) {
 				totalPoints = totalPoints + pointGain;
-				correctCount++;
+				currentCount++;
 
-				// if we got a certain amount correct, makes it faster
-				updateLevelThresh();
+				// if we got a certain amount of key presses, makes it faster
+				if (currentCount >= intervalCounts[level]) {
+					levelUp();
+				}
 			} else {
 				totalPoints = totalPoints - pointLoss;
 			}
