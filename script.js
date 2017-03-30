@@ -7,7 +7,7 @@ var pointGain = 100;
 var pointLoss = 1000;
 
 // whether or not the game is over
-var gameOver = false;
+var gameOver = true;
 
 // interval setter
 var interval;
@@ -52,9 +52,16 @@ var activated = {
 	186 : false
 };
 
-function start() {
+//function start() {
 	// calls update every half second
 	//interval = setInterval(update, 500);
+//	update();
+//}
+
+function startGame() {
+	var message = document.getElementById("message");
+	message.style.visibility = "Collapse";
+	gameOver = false;
 	update();
 }
 
@@ -189,7 +196,11 @@ window.onkeyup = function(e) {
 
 // key pressed
 window.onkeydown = function(e) {
-	if (!gameOver) {
+	if (gameOver) {
+		if (e.keyCode == 32) {
+			startGame();
+		}
+	} else {
 		//activateKey(e.keyCode);
 		deactivateKey(e.keyCode);
 	}

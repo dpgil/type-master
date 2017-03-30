@@ -40,6 +40,12 @@ p.text-display {
     text-shadow: 0px 1px 0px #F5F5F5;
 }
 
+p.message-display {
+	font-size: 20px; /* For lamers who don't support viewport sizing */
+    font-size:3vmin;
+    margin: 20px;
+}
+
 .divider{
     width:40px;
     height:auto;
