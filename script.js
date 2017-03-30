@@ -62,11 +62,11 @@ function startGame() {
 // to be called every interval seconds
 // activates random keys, the driver behind the gameplay
 function update() {
-	// set a random key to red
-	activateRandomKey();
-
-	// continues to spawn new random keys until the game is over
 	if (!gameOver) {
+		// set a random key to red
+		activateRandomKey();
+
+		// continues to spawn new random keys until the game is over
 		setTimeout(update, getRandomInt(spawnMin, spawnMax));
 	}
 }
@@ -148,42 +148,42 @@ function resetKeys() {
 }
 
 // sets keys to GAME OVER
-function setKeys() {
+function setKeys(code) {
+	// game ended because all keys were activated
 	// display G A M E O V E R in the home keys
-	var a = document.getElementById("a");
-	a.innerHTML = "G";
-	//a.style.background = gameOverColor;
-	var s = document.getElementById("s");
-	s.innerHTML = "A";
-	//s.style.background = gameOverColor;
-	var d = document.getElementById("d");
-	d.innerHTML = "M";
-	//d.style.background = gameOverColor;
-	var f = document.getElementById("f");
-	f.innerHTML = "E";
-	//f.style.background = gameOverColor;
-	var j = document.getElementById("j");
-	j.innerHTML = "O";
-	//j.style.background = gameOverColor;
-	var k = document.getElementById("k");
-	k.innerHTML = "V";
-	//k.style.background = gameOverColor;
-	var l = document.getElementById("l");
-	l.innerHTML = "E";
-	//l.style.background = gameOverColor;
-	var x = document.getElementById(";");
-	x.innerHTML = "R";
+	gameOverKeys = ["G", "A", "M", "E", "O", "V", "E", "R"];
+
+	// sets every key to GAME OVER
+	for (i=0; i < keyCodes.length; i++) {
+		var key = document.getElementById(keyCodeToChar[keyCodes[i]]);
+		key.innerHTML = gameOverKeys[i];
+	}
+
+	// game ended because the user pressed an invalid key
+	if (code !== 0) {
+		// sets all keys to grey except the incorrectly pressed one
+		for (i=0; i < keyCodes.length; i++) {
+			var key = document.getElementById(keyCodeToChar[keyCodes[i]]);
+			if (keyCodes[i] !== code) {
+				key.style.background = deactivatedColor;
+			} else {
+				key.style.background = activatedColor;
+			}
+		}
+	}
 }
 
 // ends the game
-function endGame() {
+// called because every key was activated
+// or because the user hit an incorrect key
+function endGame(code=0) {
 	gameOver = true;
 
 	// stops the timer
 	clearInterval(timer);
 
 	// sets keys to GAME OVER
-	setKeys();
+	setKeys(code);
 	showReplayMessage();
 }
 
@@ -234,6 +234,10 @@ function deactivateKey(code) {
 					spawnMax = spawnMax - spawnMaxLoss;
 					spawnMin = spawnMin - spawnMinLoss;
 				}
+			// incorrect key press, game is over
+			} else {
+				endGame(code);
+				return;
 			}
 		}
 
