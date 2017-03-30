@@ -1,3 +1,26 @@
+var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
+
+// point variables
+var totalPoints = 0;
+var pointGain = 100;
+var pointLoss = 1000;
+
+// whether or not the game is over
+var gameOver = false;
+
+// interval setter
+var interval;
+// how often a new key gets activated
+// TODO: add random activation within a range
+//var intervalMin = 300;
+//var intervalMax = 700;
+var intervalLength = 500;
+
+// colors
+var activatedColor = "#FF9999";
+var deactivatedColor = "#EFF0F2";
+var gameOverColor = "#FF6666";
+
 var keyCodeToChar = {
 	65 : "a",
 	83 : "s",
@@ -24,17 +47,9 @@ var activated = {
 	186 : false
 };
 
-var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
-
-var totalPoints = 0;
-var pointGain = 100;
-var pointLoss = 1000;
-
-var gameOver = false;
-
 function start() {
 	// calls update every half second
-	setInterval(update, 500);
+	interval = setInterval(update, 500);
 }
 
 function update() {
@@ -52,12 +67,40 @@ function checkGameOver() {
 	}
 
 	// game is over if we reached here
-	gameOver = true;
-	displayGameOver();
+	endGame();
 }
 
-function displayGameOver() {
-	alert("Game over");
+function endGame() {
+	gameOver = true;
+
+	// clears interval calling of update method
+	clearInterval(interval);
+
+	// display G A M E O V E R in the home keys
+	var a = document.getElementById("a");
+	a.innerHTML = "G";
+	//a.style.background = gameOverColor;
+	var s = document.getElementById("s");
+	s.innerHTML = "A";
+	//s.style.background = gameOverColor;
+	var d = document.getElementById("d");
+	d.innerHTML = "M";
+	//d.style.background = gameOverColor;
+	var f = document.getElementById("f");
+	f.innerHTML = "E";
+	//f.style.background = gameOverColor;
+	var j = document.getElementById("j");
+	j.innerHTML = "O";
+	//j.style.background = gameOverColor;
+	var k = document.getElementById("k");
+	k.innerHTML = "V";
+	//k.style.background = gameOverColor;
+	var l = document.getElementById("l");
+	l.innerHTML = "E";
+	//l.style.background = gameOverColor;
+	var x = document.getElementById(";");
+	x.innerHTML = "R";
+	//x.style.background = gameOverColor;
 }
 
 // randomly activates a key
@@ -77,7 +120,7 @@ function changeColor(key, color) {
 function activateKey(code) {
 	if (code in keyCodeToChar) {
 		var key = document.getElementById(keyCodeToChar[code]);
-		changeColor(key, "#FF9999");
+		changeColor(key, activatedColor);
 		activated[code] = true;
 		checkGameOver();
 	}
@@ -101,7 +144,7 @@ function deactivateKey(code) {
 		updatePointTotal();
 
 		var key = document.getElementById(keyCodeToChar[code]);
-		changeColor(key, "#EFF0F2");
+		changeColor(key, deactivatedColor);
 		activated[code] = false;
 	}
 }
