@@ -1,6 +1,7 @@
 var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
 
 // point variables
+var correctCount = 0;
 var totalPoints = 0;
 var pointGain = 100;
 var pointLoss = 1000;
@@ -14,7 +15,11 @@ var interval;
 // TODO: add random activation within a range
 //var intervalMin = 300;
 //var intervalMax = 700;
-var intervalLength = 500;
+var intervalIndex = 0;
+var intervalLengths = [500, 400, 300, 200, 100, 50];
+
+var levelThresh = 30;
+
 
 // colors
 var activatedColor = "#FF9999";
@@ -49,13 +54,20 @@ var activated = {
 
 function start() {
 	// calls update every half second
-	interval = setInterval(update, 500);
+	//interval = setInterval(update, 500);
+	update();
 }
 
 function update() {
-	randomKey();
+	activateRandomKey();
+
+	// continues to spawn new random keys until the game is over
+	if (!gameOver) {
+		setTimeout(update, intervalLengths[intervalIndex]);
+	}
 }
 
+// checks if the game is over i.e., all keys are activated
 function checkGameOver() {
 	var over = true;
 
@@ -70,11 +82,12 @@ function checkGameOver() {
 	endGame();
 }
 
+// ends the game
 function endGame() {
 	gameOver = true;
 
 	// clears interval calling of update method
-	clearInterval(interval);
+	//clearInterval(interval);
 
 	// display G A M E O V E R in the home keys
 	var a = document.getElementById("a");
@@ -103,8 +116,24 @@ function endGame() {
 	//x.style.background = gameOverColor;
 }
 
+// makes the speed of key activation faster
+function updateLevelThresh() {
+	// only makes it faster after 30 correct key presses
+	if (correctCount < 30) {
+		return;
+	}
+
+	// moves to the next speed so long as we're at the end of the array
+	if (intervalIndex < intervalLengths.length - 1) {
+		intervalIndex++;
+	}
+
+	// resets the counter
+	correctCount = 0;
+}
+
 // randomly activates a key
-function randomKey() {
+function activateRandomKey() {
 	var keyCode = keyCodes[Math.floor(Math.random() * keyCodes.length)];
 	if (!activated[keyCode]) {
 		activateKey(keyCode);
@@ -138,6 +167,10 @@ function deactivateKey(code) {
 		// key is red, user pressed it correctly
 		if (activated[code]) {
 			totalPoints = totalPoints + pointGain;
+			correctCount++;
+
+			// if we got a certain amount correct, makes it faster
+			updateLevelThresh();
 		} else {
 			totalPoints = totalPoints - pointLoss;
 		}
