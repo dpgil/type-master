@@ -8,11 +8,12 @@ var gameOver = true;
 
 // how many keys have been deactivated so far
 var currentCount = 0;
-// number keys to deactivate to advance to the next level
-var intervalCounts = [10, 10, 20, 30, 30, 30, 30, 100];
 // min and max times for a new key to be activated based on the current level
-var intervalMins = [800, 500, 200, 150, 100, 75, 50, 25];
-var intervalMaxs = [1000, 800, 500, 300, 200, 150, 100, 50];
+var intervalMin = 500;
+var intervalMax = 800;
+// number which to take away from interval min and max
+var intervalMinLoss = 5;
+var intervalMaxLoss = 8;
 // current level
 var level = 0;
 
@@ -56,7 +57,8 @@ function startGame() {
 	resetPoints();
 
 	// reset spawn rate
-	level = 0;
+	intervalMin = 500;
+	intervalMax = 800;
 
 	// hides play message
 	var message = document.getElementById("message");
@@ -75,9 +77,7 @@ function update() {
 
 	// continues to spawn new random keys until the game is over
 	if (!gameOver) {
-		var min = intervalMins[level];
-		var max = intervalMaxs[level];
-		setTimeout(update, getRandomInt(min,max));
+		setTimeout(update, getRandomInt(intervalMin, intervalMax));
 	}
 }
 
@@ -182,19 +182,11 @@ function endGame() {
 	message.style.visibility = "Visible";
 }
 
-// makes the speed of key activation faster
-function levelUp() {
-	// moves to the next speed so long as we're at the end of the array
-	if (level < intervalCounts.length - 1) {
-		level++;
-		currentCount = 0;
-	}
-}
-
 // randomly activates a key
 function activateRandomKey() {
 	var unactivatedKeys = [];
-	//var keyCode = keyCodes[Math.floor(Math.random() * keyCodes.length)];
+
+	// grabs all available keys
 	for (i=0; i < keyCodes.length; i++) {
 		if (!activated[keyCodes[i]]) {
 			unactivatedKeys.push(keyCodes[i]);
@@ -241,11 +233,11 @@ function deactivateKey(code) {
 			// key is red, user pressed it correctly
 			if (activated[code]) {
 				totalPoints = totalPoints + pointGain;
-				currentCount++;
 
-				// if we got a certain amount of key presses, makes it faster
-				if (currentCount >= intervalCounts[level]) {
-					levelUp();
+				// makes the gameplay slightly faster
+				if (intervalMax > 100) {
+					intervalMax = intervalMax - intervalMaxLoss;
+					intervalMin = intervalMin - intervalMinLoss;
 				}
 			} else {
 				totalPoints = totalPoints - pointLoss;
