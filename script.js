@@ -27,7 +27,10 @@ var activated = {
 var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
 
 var totalPoints = 0;
+var pointGain = 100;
+var pointLoss = 1000;
 
+var gameOver = false;
 
 function start() {
 	// calls update every half second
@@ -36,6 +39,25 @@ function start() {
 
 function update() {
 	randomKey();
+}
+
+function checkGameOver() {
+	var over = true;
+
+	// if any keys aren't activated, the game is still playing
+	for (i=0; i < keyCodes.length; i++) {
+		if (!activated[keyCodes[i]]) {
+			return;
+		}
+	}
+
+	// game is over if we reached here
+	gameOver = true;
+	displayGameOver();
+}
+
+function displayGameOver() {
+	alert("Game over");
 }
 
 // randomly activates a key
@@ -57,6 +79,7 @@ function activateKey(code) {
 		var key = document.getElementById(keyCodeToChar[code]);
 		changeColor(key, "#FF9999");
 		activated[code] = true;
+		checkGameOver();
 	}
 }
 
@@ -67,12 +90,15 @@ function updatePointTotal() {
 
 // changes a key back to color grey
 function deactivateKey(code) {
+	// exclude invalid key presses
 	if (code in keyCodeToChar) {
 		// key is red, user pressed it correctly
 		if (activated[code]) {
-			totalPoints = totalPoints + 100;
-			updatePointTotal();
+			totalPoints = totalPoints + pointGain;
+		} else {
+			totalPoints = totalPoints - pointLoss;
 		}
+		updatePointTotal();
 
 		var key = document.getElementById(keyCodeToChar[code]);
 		changeColor(key, "#EFF0F2");
@@ -87,8 +113,10 @@ window.onkeyup = function(e) {
 
 // key pressed
 window.onkeydown = function(e) {
-	//activateKey(e.keyCode);
-	deactivateKey(e.keyCode);
+	if (!gameOver) {
+		//activateKey(e.keyCode);
+		deactivateKey(e.keyCode);
+	}
 }
 
 // starts the timer
