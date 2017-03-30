@@ -10,11 +10,9 @@ var gameOver = true;
 // interval setter
 var interval;
 // how often a new key gets activated
-// TODO: add random activation within a range
-//var intervalMin = 300;
-//var intervalMax = 700;
+var intervalMins = [300, 200, 150, 100, 75, 50, 25];
+var intervalMaxs = [500, 400, 300, 200, 150, 100, 50];
 var intervalIndex = 0;
-var intervalLengths = [500, 400, 300, 200, 100, 50];
 
 var levelThresh = 30;
 
@@ -73,7 +71,9 @@ function update() {
 
 	// continues to spawn new random keys until the game is over
 	if (!gameOver) {
-		setTimeout(update, intervalLengths[intervalIndex]);
+		var min = intervalMins[intervalIndex];
+		var max = intervalMaxs[intervalIndex];
+		setTimeout(update, getRandomInt(min,max));
 	}
 }
 
@@ -90,6 +90,12 @@ function checkGameOver() {
 
 	// game is over if we reached here
 	endGame();
+}
+
+// generates a number between interval min and interval max
+// spawn time to decide when to activate the next key
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // sets points and count back to zero
@@ -175,12 +181,12 @@ function endGame() {
 // makes the speed of key activation faster
 function updateLevelThresh() {
 	// only makes it faster after 30 correct key presses
-	if (correctCount < 30) {
+	if (correctCount < levelThresh) {
 		return;
 	}
 
 	// moves to the next speed so long as we're at the end of the array
-	if (intervalIndex < intervalLengths.length - 1) {
+	if (intervalIndex < intervalMins.length - 1) {
 		intervalIndex++;
 	}
 
@@ -190,7 +196,16 @@ function updateLevelThresh() {
 
 // randomly activates a key
 function activateRandomKey() {
-	var keyCode = keyCodes[Math.floor(Math.random() * keyCodes.length)];
+	var unactivatedKeys = [];
+	//var keyCode = keyCodes[Math.floor(Math.random() * keyCodes.length)];
+	for (i=0; i < keyCodes.length; i++) {
+		if (!activated[keyCodes[i]]) {
+			unactivatedKeys.push(keyCodes[i]);
+		}
+	}
+
+	// random index of all available keys
+	var keyCode = unactivatedKeys[Math.floor(Math.random() * unactivatedKeys.length)];
 	if (!activated[keyCode]) {
 		activateKey(keyCode);
 	}
