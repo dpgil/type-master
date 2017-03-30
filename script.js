@@ -1,16 +1,12 @@
 // whether or not the game is over
 var gameOver = true;
 
-// how many keys have been deactivated so far
-var currentCount = 0;
-// min and max times for a new key to be activated based on the current level
-var intervalMin = 500;
-var intervalMax = 800;
-// number which to take away from interval min and max
-var intervalMinLoss = 3;
-var intervalMaxLoss = 5;
-// current level
-var level = 0;
+// min and max times for a new key to be activated 
+var spawnMin = 500;
+var spawnMax = 800;
+// number which to take away from spawn min and max
+var spawnMinLoss = 3;
+var spawnMaxLoss = 5;
 
 // colors
 var activatedColor = "#FF9999";
@@ -53,7 +49,7 @@ function startGame() {
 	// resets keys
 	resetKeys();
 	resetTimer();
-	resetInterval();
+	resetSpawnRate();
 
 	// hides play message
 	hidePlayMessage();
@@ -71,7 +67,7 @@ function update() {
 
 	// continues to spawn new random keys until the game is over
 	if (!gameOver) {
-		setTimeout(update, getRandomInt(intervalMin, intervalMax));
+		setTimeout(update, getRandomInt(spawnMin, spawnMax));
 	}
 }
 
@@ -114,9 +110,9 @@ function resetTimer() {
 	}, 42);
 }
 
-function resetInterval() {
-	intervalMin = 500;
-	intervalMax = 800;
+function resetSpawnRate() {
+	spawnMin = 500;
+	spawnMax = 800;
 }
 
 // sets keys back to home keys
@@ -234,9 +230,9 @@ function deactivateKey(code) {
 			// key is red, user pressed it correctly
 			if (activated[code]) {
 				// makes the gameplay slightly faster
-				if (intervalMax > 200) {
-					intervalMax = intervalMax - intervalMaxLoss;
-					intervalMin = intervalMin - intervalMinLoss;
+				if (spawnMax > 200) {
+					spawnMax = spawnMax - spawnMaxLoss;
+					spawnMin = spawnMin - spawnMinLoss;
 				}
 			}
 		}
