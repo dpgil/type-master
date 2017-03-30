@@ -1,8 +1,3 @@
-// point variables
-var totalPoints = 0;
-var pointGain = 100;
-var pointLoss = 1000;
-
 // whether or not the game is over
 var gameOver = true;
 
@@ -21,6 +16,10 @@ var level = 0;
 var activatedColor = "#FF9999";
 var deactivatedColor = "#EFF0F2";
 var gameOverColor = "#FF6666";
+
+// timer variables
+var startTime;
+var timer;
 
 // stores all key codes for keys used in the game
 var keyCodes = [65, 83, 68, 70, 74, 75, 76, 186];
@@ -53,7 +52,7 @@ var activated = {
 function startGame() {
 	// resets keys
 	resetKeys();
-	resetPoints();
+	resetTimer();
 	resetInterval();
 
 	// hides play message
@@ -107,16 +106,17 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function resetTimer() {
+	startTime = Date.now();
+	timer = setInterval(function() {
+    	var elapsedTime = Date.now() - startTime;
+    	document.getElementById("timer").innerHTML = elapsedTime;
+	}, 42);
+}
+
 function resetInterval() {
 	intervalMin = 500;
 	intervalMax = 800;
-}
-
-// sets points and count back to zero
-function resetPoints() {
-	currentCount = 0;
-	totalPoints = 0;
-	updatePointTotal();
 }
 
 // sets keys back to home keys
@@ -183,6 +183,9 @@ function setKeys() {
 function endGame() {
 	gameOver = true;
 
+	// stops the timer
+	clearInterval(timer);
+
 	// sets keys to GAME OVER
 	setKeys();
 	showReplayMessage();
@@ -222,12 +225,6 @@ function activateKey(code) {
 	}
 }
 
-// updates the point total display to reflect the current points
-function updatePointTotal() {
-	var totalDisplay = document.getElementById("total-points");
-	totalDisplay.innerHTML = totalPoints;
-}
-
 // changes a key back to color grey
 function deactivateKey(code) {
 	// exclude invalid key presses
@@ -236,17 +233,12 @@ function deactivateKey(code) {
 		if (!gameOver) {
 			// key is red, user pressed it correctly
 			if (activated[code]) {
-				totalPoints = totalPoints + pointGain;
-
 				// makes the gameplay slightly faster
 				if (intervalMax > 200) {
 					intervalMax = intervalMax - intervalMaxLoss;
 					intervalMin = intervalMin - intervalMinLoss;
 				}
-			} else {
-				totalPoints = totalPoints - pointLoss;
 			}
-			updatePointTotal();
 		}
 
 		// so we can deactivate keys internally
